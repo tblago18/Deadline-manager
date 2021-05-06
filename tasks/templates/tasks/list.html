@@ -1,0 +1,87 @@
+<head>
+
+{% if request.user.is_authenticated %}
+	<a href="{% url 'logout' %}"> Logout</a>
+{% else %}
+	<a href="{% url 'login' %}"> Login</a>
+{% endif %}
+	
+<style type="text/css">
+	div.calendar {
+	position: absolute;
+	right: 250;
+	width: 250px;
+	height: 250px;
+	border: 3px solid pink;
+} 
+	div.form{
+	position: absolute;
+	left: 50;
+	}
+	</style>
+</head>
+<body style="background-color:AliceBlue;">
+	<title>Grad School</title>
+	<center><h1>{{request.user}}'s Grad School Application Deadlines </h1>
+	<h3> Hello {{request.user}}! </h3>
+	</center>
+
+
+
+
+<div class = 'calendar'>
+	
+	<form method="POST", action="/">
+		{% csrf_token %}
+		{{calendar_form}}
+		<input type="submit" name="pick date">
+
+	</form>
+	<center>
+	<p><b>My Calendar</b></p>
+	 {{my_calendar|safe}}
+	</center>
+
+
+</div>
+
+	<div class="form">
+		<form method="POST", action="/">
+		{% csrf_token %}
+		<h3>Add new deadline</h3>
+		<p>Name and Due Date:</p>
+		{{form.title}}
+		{{form.due_date}}
+		<input type="submit" name="Create Task">
+	</form>
+
+	<h3>Exsiting deadlines:</h3>
+	{% for task in tasks %}
+		<div>
+			{% if task.complete == False %}
+				<a href="{% url 'update_task' task.id%}"> Update</a>
+				<a href="{% url 'delete' task.id%}"> Delete</a>
+				<p> {{task.title}}  <b> Due:</b>  {{task.due_date}}<p>
+			{% endif %}	
+		</div>
+	{% endfor %}	
+
+	<h3>Completed deadlines:</h3>
+	{% for task in tasks %}
+		<div>
+			{% if task.complete %}
+				<a href="{% url 'update_task' task.id%}"> Update</a>
+				<a href="{% url 'delete' task.id%}"> Delete</a>
+				<p> {{task.title}} <b> Due:</b> {{task.due_date}}</p>
+			{% endif %}	
+		</div>
+	{% endfor %}
+	</div>
+</body>
+
+
+
+
+
+
+
