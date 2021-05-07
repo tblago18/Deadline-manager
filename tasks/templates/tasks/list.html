@@ -10,8 +10,8 @@
 	div.calendar {
 	position: absolute;
 	right: 250;
-	width: 250px;
-	height: 250px;
+	width: 400px;
+	height: 400px;
 	border: 3px solid pink;
 } 
 	div.form{
@@ -42,28 +42,27 @@
 	 {{my_calendar|safe}}
 	</center>
 
-
 </div>
 
-	<div class="form">
-		<form method="POST", action="/">
-		{% csrf_token %}
-		<h3>Add new deadline</h3>
-		<p>Name and Due Date:</p>
-		{{form.title}}
-		{{form.due_date}}
-		<input type="submit" name="Create Task">
-	</form>
+<div class="form">
+	<form method="POST", action="/">
+	{% csrf_token %}
+	<h3>Add new deadline</h3>
+	<p>Name and Due Date:</p>
+	{{form.title}}
+	{{form.due_date}}
+	<input type="submit" name="Create Task">
+</form>
 
-	<h3>Exsiting deadlines:</h3>
-	{% for task in tasks %}
-		<div>
-			{% if task.complete == False %}
-				<a href="{% url 'update_task' task.id%}"> Update</a>
-				<a href="{% url 'delete' task.id%}"> Delete</a>
-				<p> {{task.title}}  <b> Due:</b>  {{task.due_date}}<p>
-			{% endif %}	
-		</div>
+<h3>Exsiting deadlines:</h3>
+{% for task in tasks %}
+	<div>
+		{% if task.complete == False %}
+			<a href="{% url 'update_task' task.id%}"> Update</a>
+			<a href="{% url 'delete' task.id%}"> Delete</a>
+			<p> {{task.title}}  <b> Due:</b>  {{task.due_date}}<p>
+		{% endif %}	
+	</div>
 	{% endfor %}	
 
 	<h3>Completed deadlines:</h3>
@@ -76,7 +75,7 @@
 			{% endif %}	
 		</div>
 	{% endfor %}
-	</div>
+</div>
 </body>
 
 

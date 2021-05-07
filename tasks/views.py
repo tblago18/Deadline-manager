@@ -9,16 +9,20 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from .models import *
 from .forms import *
+from .utils import Calendar
 import calendar
 from calendar import HTMLCalendar
 import xml.etree.ElementTree as etree
 from datetime import date
 
+
 class CustomLogin(LoginView):
 	template_name='tasks/login.html'
 	fields='__all__'
 	redirect_authenticated_user = True
-	#success_url = reverse_lazy('list')
+	# success_url = reverse_lazy('list')
+
+
 class RegisterView(FormView):
 	template_name='tasks/register.html'
 	form_class=UserCreationForm
@@ -36,14 +40,15 @@ def CalendarView(request):
 	todays_date = date.today()
 	year=todays_date.year
 	month=int(todays_date.month)
-	#month=month.capitalize() #making sure that the first letter is capitalized
-	#onths_list=list(calendar.month_name)
+	# month=month.capitalize() #making sure that the first letter is capitalized
+	# onths_list=list(calendar.month_name)
 	
 	#month_number=months_list.index(month)
 
-	
+	#my_calendar=HTMLCalendar().formatmonth(year, month)
+	print('hello')
+	my_calendar=Calendar(year, month).formatmonth(withyear=True)
 
-	my_calendar=HTMLCalendar().formatmonth(year, month)
 
 	context={'month':month, 'year': year, 'my_calendar':my_calendar}
 	
@@ -54,7 +59,7 @@ def CalendarView(request):
 @login_required
 def index(request):
 	current_user = request.user
-	tasks=Task.objects.filter(user=current_user)
+	tasks=Task.objects.filter(user=current_user).order_by('due_date')
 	form=TaskForm()
 	calendar_form=CalendarForm()
 	todays_date = date.today()
@@ -81,13 +86,13 @@ def index(request):
 		# else:
 		# 	print(form.errors.as_data())
 		# 	print('form not valid')
-	html_calendar=HTMLCalendar().formatmonth(year, month)
-	html_calendar = html_calendar.replace("&nbsp;", " ")
+	my_calendar=Calendar(year, month).mark_dates(request)
+	# html_calendar = html_calendar.replace("&nbsp;", " ")
 
-	root = etree.fromstring(html_calendar)
-	root.set("cellpadding", '5')
-	root.set("cellspacing", '2')
-	my_calendar=etree.tostring(root)
+	# root = etree.fromstring(html_calendar)
+	# root.set("cellpadding", '5')
+	# root.set("cellspacing", '2')
+	# my_calendar=etree.tostring(root)
 
 		
 	
