@@ -31,9 +31,6 @@ class Calendar(HTMLCalendar):
 		root.set("cellspacing", '2')
 		root.set("border", "3")
 
-		my_calendar=etree.tostring(root)
-		
-
 		for elem in root.findall("*//td"): # looping the html calendar table by cell/date
 
 			try:
@@ -50,5 +47,7 @@ class Calendar(HTMLCalendar):
 				pass
 
 		my_calendar=etree.tostring(root)
+		
+		print(my_calendar)
 
 		return my_calendar
