@@ -1,130 +1,91 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
 from django.contrib.auth.views import LoginView
-from django.contrib.auth.views import LogoutView
 from django.views.generic.edit import FormView
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
-from .models import *
+from .models import Task
 from .forms import *
 from .utils import Calendar
-import calendar
-from calendar import HTMLCalendar
-import xml.etree.ElementTree as etree
 from datetime import date
 
 
-class CustomLogin(LoginView):
-	template_name='tasks/login.html'
-	fields='__all__'
-	redirect_authenticated_user = True
-	# success_url = reverse_lazy('list')
+class CustomLogin(LoginView):  # this is a inherited from the Django inbuilt log-in class
+    
+    template_name = 'tasks/login.html'
+    fields = '__all__'
+    redirect_authenticated_user = True
 
 
 class RegisterView(FormView):
-	template_name='tasks/register.html'
-	form_class=UserCreationForm
-	redirect_authenticated_user = True
-	success_url=reverse_lazy('list')
+    
+    template_name = 'tasks/register.html'
+    form_class = UserCreationForm  # this is a inbuilt Django form for creating new users
+    redirect_authenticated_user = True
+    success_url = reverse_lazy('list')
 
-	def form_valid(self, form):
-		user=form.save()
-		if user is not None:
-			login(self.request, user)
-		return super (RegisterView, self).form_valid(form)
-
-
-def CalendarView(request):
-	todays_date = date.today()
-	year=todays_date.year
-	month=int(todays_date.month)
-	# month=month.capitalize() #making sure that the first letter is capitalized
-	# onths_list=list(calendar.month_name)
-	
-	#month_number=months_list.index(month)
-
-	#my_calendar=HTMLCalendar().formatmonth(year, month)
-	print('hello')
-	my_calendar=Calendar(year, month).formatmonth(withyear=True)
+    def form_valid(self, form):
+        user = form.save()
+        if user is not None:  # checking if the user already exists
+            login(self.request, user)
+        return super(RegisterView, self).form_valid(form)
 
 
-	context={'month':month, 'year': year, 'my_calendar':my_calendar}
-	
-	return render(request, 'tasks/calendar.html', context)
+@login_required  # this makes sure that you cannot access the view if you are not logged in
+def main_view(request):
 
+    current_user = request.user
+    tasks = Task.objects.filter(user=current_user).order_by('due_date') # making a list of all the tasks for the user
+
+    new_task_form = TaskForm()  # making a form so that the user can add new tasks to the list
+    calendar_form = CalendarForm()  # form for choosing what month and year the user wants to see on the calendar
+
+    todays_date = date.today()  # the calendar is by default showing current month and year
+    month = int(todays_date.month)
+    year = todays_date.year
+
+    if request.method == 'POST':  # post method lets us communicate with the user trough the forms
+        new_task_form = TaskForm(request.POST)
+        calendar_form = CalendarForm(request.POST)
+
+        if new_task_form.is_valid():  # checking if the post is sending a task form
+            form_instance = new_task_form.save(commit=False)
+            form_instance.user = current_user
+            form_instance.save()
+            return redirect('/')
+        elif calendar_form.is_valid():  # or a calendar form
+            year = calendar_form.cleaned_data.get("year")
+            month = calendar_form.cleaned_data.get("month")
+
+    my_calendar = Calendar(year, month).mark_dates(request)  # making the calendar to be displayed
+
+    context = {'month': month, 'year': year, 'my_calendar': my_calendar,
+               'tasks': tasks, 'new_task_form': new_task_form, 'calendar_form': calendar_form}
+    return render(request, 'tasks/list.html', context)
 
 
 @login_required
-def index(request):
-	current_user = request.user
-	tasks=Task.objects.filter(user=current_user).order_by('due_date')
-	form=TaskForm()
-	calendar_form=CalendarForm()
-	todays_date = date.today()
-	month=int(todays_date.month)
-	year=todays_date.year
+def update_task(request, pk):
 
-	if request.method=='POST':
-		form=TaskForm(request.POST)
-		calendar_form = CalendarForm(request.POST)
-		#print('made a form')
+    task = Task.objects.get(id=pk)
+    form = TaskForm(instance=task)
+    if request.method == 'POST':
+        form = TaskForm(request.POST, instance=task)
+        if form.is_valid():
+            form.save()
+        return redirect('/')
+    context = {'form': form}
+    return render(request, 'tasks/update_task.html', context)
 
-		if form.is_valid():
-			form_instance = form.save(commit=False)
-			form_instance.user = current_user
-			form_instance.save()
-			#print('set the user', instance.user)
-			return redirect('/')
-		elif calendar_form.is_valid():
-			#print('valid')
-			year=calendar_form.cleaned_data.get("year")
-			month=calendar_form.cleaned_data.get("month")
-			#print(year)
-		
-		# else:
-		# 	print(form.errors.as_data())
-		# 	print('form not valid')
-	my_calendar=Calendar(year, month).mark_dates(request)
-	# html_calendar = html_calendar.replace("&nbsp;", " ")
-
-	# root = etree.fromstring(html_calendar)
-	# root.set("cellpadding", '5')
-	# root.set("cellspacing", '2')
-	# my_calendar=etree.tostring(root)
-
-		
-	
-	#month=month.capitalize() #making sure that the first letter is capitalized
-	#onths_list=list(calendar.month_name)
-	
-	#month_number=months_list.index(month)
-
-
-	context={'month':month, 'year': year, 'my_calendar':my_calendar, 'tasks':tasks, 'form':form, 'calendar_form':calendar_form}
-	return render(request, 'tasks/list.html', context)
 
 @login_required
-def updateTask(request, pk):
-	task=Task.objects.get(id=pk)
-	form = TaskForm(instance=task)
-	if request.method=='POST':
-		form = TaskForm(request.POST,instance=task)
-		if form.is_valid():
-			form.save()
-		return redirect('/')
-	context={'form':form}
-	return render (request, 'tasks/update_task.html', context)
-@login_required
-def deleteTask(request, pk):
-	
-	item= Task.objects.get(id=pk)
-	
-	if request.method=='POST':
-		item.delete()
-		return redirect('/')
-	context={'item':item}
-	return render (request, 'tasks/delete.html', context)
+def delete_task(request, pk):
 
+    item = Task.objects.get(id=pk)
 
+    if request.method == 'POST':
+        item.delete()
+        return redirect('/')
+    context = {'item': item}
+    return render(request, 'tasks/delete.html', context)
