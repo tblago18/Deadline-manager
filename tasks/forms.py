@@ -31,3 +31,7 @@ class CalendarForm(forms.Form):
 
     year = forms.TypedChoiceField(coerce=int, choices=year_choices, initial=date.today().year)
     month = forms.TypedChoiceField(coerce=int, choices=month_choices, initial=date.today().month)
+
+class SearchForm(forms.Form):
+	search = forms.CharField(required = False)
+

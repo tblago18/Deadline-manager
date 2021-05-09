@@ -25,8 +25,6 @@
 	</center>
 
 
-
-
 <div class = 'calendar'>
 	
 	<form method="POST", action="/">
@@ -53,28 +51,38 @@
 </form>
 
 <h3>Existing deadlines:</h3>
-{% for task in tasks %}
-	<div>
-		{% if task.complete == False %}
+	<form method="POST", action="/">
+		{% csrf_token %}
+		{{search_form}}
+		<input type="submit" name="Search">
+	</form>
 
-			<p> {{task.title}}  <b> Due:</b>  {{task.due_date}}
-				<a href="{% url 'update_task' task.id%}"> Update</a>
-				<a href="{% url 'delete' task.id%}"> Delete</a>
-			</p>
+	{% for task in tasks %}
+		<div>
+			{% if task.complete == False %}
+				<ul>
+					<li>				
+					{{task.title}}  <b> Due:</b>  {{task.due_date}}
+					<a href="{% url 'update_task' task.id%}"> Update</a>
+					<a href="{% url 'delete' task.id%}"> Delete</a>
+					</li>
+				</ul>
 
-		{% endif %}
-	</div>
+			{% endif %}
+		</div>
 	{% endfor %}	
 
-	<h3>Completed deadlines:</h3>
+<h3>Completed deadlines:</h3>
 	{% for task in tasks %}
 		<div>
 			{% if task.complete %}
-
-				<p> {{task.title}} <b> Due:</b> {{task.due_date}}
+			<ul>
+				<li>
+					{{task.title}} <b> Due:</b> {{task.due_date}}
 					<a href="{% url 'update_task' task.id%}"> Update</a>
 					<a href="{% url 'delete' task.id%}"> Delete</a>
-				</p>
+				</li>
+			</ul>
 
 			{% endif %}
 		</div>
