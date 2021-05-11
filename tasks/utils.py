@@ -38,7 +38,9 @@ class Calendar(HTMLCalendar):
             try:
 
                 if int(elem.text) in dates_to_mark:
-                    elem.set('bgcolor', "pink")
+                    
+                   elem.set('bgcolor', "pink")
+              
 
                 # highlighting today's day on the calendar
                 if int(elem.text) == today.day and self.month == today.month and self.year == today.year:

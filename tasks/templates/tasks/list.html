@@ -1,21 +1,19 @@
 <head>
-
 {% if request.user.is_authenticated %}
 	<a href="{% url 'logout' %}"> Logout</a>
 {% endif %}
-	
-<style type="text/css">
-	div.calendar {
-	position: absolute;
-	right: 250;
-	width: 400px;
-	height: 400px;
-	border: 3px solid pink;
-} 
-	div.form{
-	position: absolute;
-	left: 50;
+	<style type="text/css">
+		div.calendar {
+		position: absolute;
+		right: 250;
+		width: 400px;
+		height: 400px;
+		border: 3px solid pink;
 	}
+		div.form{
+		position: absolute;
+		left: 50;
+		}
 	</style>
 </head>
 <body style="background-color:AliceBlue;">
@@ -25,69 +23,69 @@
 	</center>
 
 
-<div class = 'calendar'>
-	
-	<form method="POST", action="/">
-		{% csrf_token %}
-		{{calendar_form}}
-		<input type="submit" name="pick date">
+	<div class = 'calendar'>
 
-	</form>
-	<center>
-	<p><b>My Calendar</b></p>
-	 {{my_calendar|safe}}
-	</center>
+		<form method="POST", action="/">
+			{% csrf_token %}
+			{{calendar_form}}
+			<input type="submit" name="pick date">
 
-</div>
+		</form>
+		<center>
+		<p><b>My Calendar</b></p>
+		 {{my_calendar|safe}}
+		</center>
 
-<div class="form">
-	<form method="POST", action="/">
-	{% csrf_token %}
-	<h3>Add new deadline</h3>
-	<p>Name and Due Date:</p>
-	{{new_task_form.title}}
-	{{new_task_form.due_date}}
-	<input type="submit" name="Create Task">
-</form>
+	</div>
 
-<h3>Existing deadlines:</h3>
-	<form method="POST", action="/">
-		{% csrf_token %}
-		{{search_form}}
-		<input type="submit" name="Search">
-	</form>
+	<div class="form">
+		<form method="POST", action="/">
+			{% csrf_token %}
+			<h3>Add new deadline</h3>
+			<p>Name and Due Date:</p>
+			{{new_task_form.title}}
+			{{new_task_form.due_date}}
+			<input type="submit" name="Create Task">
+		</form>
 
-	{% for task in tasks %}
-		<div>
-			{% if task.complete == False %}
+	<h3>Existing deadlines:</h3>
+		<form method="POST", action="/">
+			{% csrf_token %}
+			{{search_form}}
+			<input type="submit" name="Search">
+		</form>
+
+		{% for task in tasks %}
+			<div>
+				{% if task.complete == False %}
+					<ul>
+						<li>
+						{{task.title}}  <b> Due:</b>  {{task.due_date}}
+						<a href="{% url 'update_task' task.id%}"> Update</a>
+						<a href="{% url 'delete' task.id%}"> Delete</a>
+						</li>
+					</ul>
+
+				{% endif %}
+			</div>
+		{% endfor %}
+
+	<h3>Completed deadlines:</h3>
+		{% for task in tasks %}
+			<div>
+				{% if task.complete %}
 				<ul>
-					<li>				
-					{{task.title}}  <b> Due:</b>  {{task.due_date}}
-					<a href="{% url 'update_task' task.id%}"> Update</a>
-					<a href="{% url 'delete' task.id%}"> Delete</a>
+					<li>
+						{{task.title}} <b> Due:</b> {{task.due_date}}
+						<a href="{% url 'update_task' task.id%}"> Update</a>
+						<a href="{% url 'delete' task.id%}"> Delete</a>
 					</li>
 				</ul>
 
-			{% endif %}
-		</div>
-	{% endfor %}	
-
-<h3>Completed deadlines:</h3>
-	{% for task in tasks %}
-		<div>
-			{% if task.complete %}
-			<ul>
-				<li>
-					{{task.title}} <b> Due:</b> {{task.due_date}}
-					<a href="{% url 'update_task' task.id%}"> Update</a>
-					<a href="{% url 'delete' task.id%}"> Delete</a>
-				</li>
-			</ul>
-
-			{% endif %}
-		</div>
-	{% endfor %}
-</div>
+				{% endif %}
+			</div>
+		{% endfor %}
+	</div>
 </body>
 
 

@@ -1,5 +1,4 @@
 from django import forms
-from django.forms import ModelForm
 import datetime
 from datetime import date
 
@@ -11,7 +10,7 @@ def year_choices():
 
 
 def month_choices():
-    return [(m, m) for m in range(1, 13)]
+    return [(m, m) for m in range(1, 13)] 
 
 
 class DateInput(forms.DateInput):
@@ -19,19 +18,17 @@ class DateInput(forms.DateInput):
 
 
 class TaskForm(forms.ModelForm):
-
     class Meta:
         model = Task
-        exclude = ["user"]  # we do not want the user to be able to set who is the user so we are hiding this field
+        exclude = ["user"]  # we do not want the user to be able to set who is the user for security so we are hiding this field
         fields = '__all__'
         widgets = {'due_date': DateInput()}
 
 
 class CalendarForm(forms.Form):
-
     year = forms.TypedChoiceField(coerce=int, choices=year_choices, initial=date.today().year)
     month = forms.TypedChoiceField(coerce=int, choices=month_choices, initial=date.today().month)
 
-class SearchForm(forms.Form):
-	search = forms.CharField(required = False)
 
+class SearchForm(forms.Form):
+    search = forms.CharField(required=False)
