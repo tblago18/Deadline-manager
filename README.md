@@ -1,4 +1,4 @@
-# Grad school application Mnager
+# Grad school application Manager
 This code should be run from the command line.
 
 To run this code it is advised to make a virtual environment. 
