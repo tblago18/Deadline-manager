@@ -1,4 +1,4 @@
-# ToDo-List
+# Grad school application Mnager
 This code should be run from the command line.
 
 To run this code it is advised to make a virtual environment. 
