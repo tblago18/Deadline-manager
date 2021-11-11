@@ -1,4 +1,7 @@
 # Grad school application Manager
+
+This application is made to help students manage grad school applications. It has a calendar and deadline tracking to help the student organize upcoming deadlines.
+
 This code should be run from the command line.
 
 To run this code it is advised to make a virtual environment. 
